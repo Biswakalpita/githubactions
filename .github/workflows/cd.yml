@@ -1,3 +1,35 @@
+# name: CD Pipeline
+
+# on:
+#   workflow_run:
+#     workflows: ["CI Pipeline"]
+#     types:
+#       - completed
+
+# jobs:
+#   deploy:
+#     if: ${{ github.event.workflow_run.conclusion == 'success' }}
+#     runs-on: ubuntu-latest
+#     environment:
+#       name: production
+#       url: https://your-app.example.com
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+
+#       - name: Set up kubectl
+#         uses: azure/setup-kubectl@v4
+#         with:
+#           version: 'latest'
+
+#       - name: Apply Kubernetes manifests
+#         env:
+#           KUBECONFIG_DATA: ${{ secrets.KUBECONFIG_DATA }}
+#         run: |
+#           echo "$KUBECONFIG_DATA" | base64 --decode > kubeconfig.yaml
+#           export KUBECONFIG=kubeconfig.yaml
+#           kubectl apply -f k8s/
+
 name: CD Pipeline
 
 on:
@@ -13,6 +45,7 @@ jobs:
     environment:
       name: production
       url: https://your-app.example.com
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -22,10 +55,15 @@ jobs:
         with:
           version: 'latest'
 
-      - name: Apply Kubernetes manifests
+      - name: Configure kubeconfig
         env:
           KUBECONFIG_DATA: ${{ secrets.KUBECONFIG_DATA }}
         run: |
-          echo "$KUBECONFIG_DATA" > kubeconfig.yaml
+          echo "$KUBECONFIG_DATA" | base64 --decode > kubeconfig.yaml
+          chmod 600 kubeconfig.yaml
           export KUBECONFIG=kubeconfig.yaml
+          kubectl config get-contexts
+
+      - name: Deploy to Kubernetes
+        run: |
           kubectl apply -f k8s/
