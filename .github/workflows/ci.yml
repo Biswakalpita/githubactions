@@ -5,6 +5,10 @@ on:
     branches: [ main ]
   pull_request:
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -58,7 +62,11 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and Push Docker image
+        env:
+          REPO_LC: ${{ toLowerCase(github.repository) }}
         run: |
-          IMAGE_NAME=ghcr.io/${{ github.repository }}/demo-app:latest
-          docker build -t $IMAGE_NAME .
-          docker push $IMAGE_NAME
+          IMAGE_TAG=${{ github.run_number }}
+          IMAGE=${{ env.REGISTRY }}/${REPO_LC}:${IMAGE_TAG}
+          echo "Building image: $IMAGE"
+          docker build -t $IMAGE .
+          docker push $IMAGE
