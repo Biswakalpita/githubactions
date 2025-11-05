@@ -62,10 +62,9 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and Push Docker image
-        env:
-          REPO_LC: ${{ toLowerCase(github.repository) }}
         run: |
-          IMAGE_TAG=${{ github.run_number }}
+          REPO_LC=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE_TAG=${{ github.sha }}
           IMAGE=${{ env.REGISTRY }}/${REPO_LC}:${IMAGE_TAG}
           echo "Building image: $IMAGE"
           docker build -t $IMAGE .
