@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
         - name: demo-app
-          image: ghcr.io/YOUR_GITHUB_USERNAME/github-actions-demo:latest
+          image: ghcr.io/biswakalpita/githubactions:14fdd461e1f0bbbb739fca67a38fdb24fe546ace
           ports:
             - containerPort: 8080
